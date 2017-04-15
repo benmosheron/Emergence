@@ -1,0 +1,24 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<script src="~/Scripts/Emergence/Index.js"></script>
+<link rel="stylesheet" type="text/css" href="~/Content/Emergence.css" />
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>@Html.ActionLink("Colours", "Colours", "Emergence")</h2>
+        <p>
+            Colours are pretty interesting.
+        </p>
+        <canvas id="canvasIndex0" class="gridDiv"></canvas>
+    </div>
+    <div class="col-md-4">
+        <h2>Other</h2>
+        <p>We demand more stuff</p>
+    </div>
+    <div class="col-md-4">
+        <h2>Else</h2>
+        <p>Add more stuff.</p>
+    </div>
+</div>
