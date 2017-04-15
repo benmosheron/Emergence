@@ -1,0 +1,30 @@
+﻿/* Don't set the width/height of canvases via css.
+   They have intrinsic and extrinsic dimensions, css messes with the extrinsic.
+*/
+.graphDiv{
+    border:solid;
+    border-width:medium;
+    width: 200px;
+    height: 200px;
+}
+
+.runDiv{
+    border:solid;
+    border-width:medium;
+    width: 200px;
+    height: 200px;
+}
+
+.lineDiv{
+    border:solid;
+    border-width:medium;
+    width: 400px;
+    height: 200px;
+}
+
+.gridDiv{
+    border:solid;
+    border-width:medium;
+    width: 200px;
+    height: 200px;
+}

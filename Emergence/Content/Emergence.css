@@ -1,0 +1,25 @@
+﻿body {
+}
+
+#canvases{
+    position: relative;
+    height: 500px;
+    width:800px;
+    border: solid;
+    border-width: medium;
+    border-color: black;
+}
+
+#canvas0 {
+    z-index: 0;
+    position: absolute;
+    left: 0; 
+    top: 0;
+}
+
+#canvas1 {
+    z-index: 1;
+    position: absolute;
+    left: 0; 
+    top: 0;
+}
