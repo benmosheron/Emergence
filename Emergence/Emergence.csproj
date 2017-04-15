@@ -206,6 +206,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\Colours.css" />
     <Content Include="Content\Emergence.css" />
+    <Content Include="Content\Index.css" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -217,6 +218,7 @@
     </Content>
     <None Include="Properties\PublishProfiles\Emergence20170218061604.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\Common\CanvasController.js" />
     <Content Include="Scripts\Common\Colour.js" />
     <Content Include="Scripts\Emergence\Colours.js" />
     <Content Include="Scripts\Emergence\Emergence.js" />

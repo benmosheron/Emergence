@@ -3,7 +3,7 @@
 }
 
 <script src="~/Scripts/Emergence/Index.js"></script>
-<link rel="stylesheet" type="text/css" href="~/Content/Emergence.css" />
+<link rel="stylesheet" type="text/css" href="~/Content/Index.css" />
 
 <div class="row">
     <div class="col-md-4">
@@ -11,7 +11,9 @@
         <p>
             Colours are pretty interesting.
         </p>
-        <canvas id="canvasIndex0" class="gridDiv"></canvas>
+        <div class="clickable" onclick="window.location.href='@Url.Action("Colours", "Emergence")';">
+            <canvas id="canvasIndex0" class="gridDiv" width="100" height="100"></canvas>
+        </div>
     </div>
     <div class="col-md-4">
         <h2>Other</h2>

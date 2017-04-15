@@ -1,0 +1,8 @@
+﻿.gridDiv{
+    border:solid;
+    border-width:medium;
+}
+
+.clickable{
+    cursor: pointer
+}
