@@ -74,8 +74,10 @@ function Colours() {
     function setUpRunDivs() {
         let runDivs = $("div.runDiv");
 
+        // Assign update and init functions to each runDiv
         let functions = {
-            runDiv0: {initialise: initForRunDiv0, update: updateForRunDiv0}
+            runDiv0: { initialise: initForRunDiv0, update: updateForRunDiv0 },
+            runDiv1: { initialise: initForRunDiv1, update: function () { return new Promise(r => r()) } }
         }
 
         runDivs
@@ -93,6 +95,29 @@ function Colours() {
 
         let init = [];
         for (var i = 0; i < 100; i++) { init[i] = 126; }
+        var trace = {
+            x: init,
+            y: init,
+            z: init,
+            mode: 'markers',
+            marker: {
+                size: 6,
+                opacity: 0.8
+            },
+            type: 'scatter3d'
+        };
+
+        let data = [trace];
+        let layout = plotlyFactory.get3DColourGraphLayout();
+
+        return Plotly.plot(graphDiv, data, layout, { displayModeBar: false });
+    }
+
+    function initForRunDiv1() {
+        graphDiv = document.getElementById("graphDiv1");
+
+        let init = [0, 255];
+        
         var trace = {
             x: init,
             y: init,
@@ -147,11 +172,14 @@ function Colours() {
             return {
                 showticklabels: false,
                 title: title,
-                zeroline: true,
-                showline: true,
-                showgrid: false,
+                zeroline: false,
+                showline: false,
+                showgrid: true,
+                gridcolor: "rgb(204, 204, 204)",
                 type: "linear",
-                range: [0, 255]
+                range: [0, 255],
+                tick0: 0,
+                dtick: 51
             }
         }
 
@@ -162,7 +190,7 @@ function Colours() {
                 xaxis: getMinimalAxis("r"),
                 yaxis: getMinimalAxis("g"),
                 zaxis: getMinimalAxis("b"),
-                camera: { eye: { x: 0, y: 2.5, z: 0} }
+                camera: { eye: { x: 0, y: -2.5, z: 0} }
             }
 
             // "Layout" object
