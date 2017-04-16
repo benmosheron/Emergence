@@ -1,110 +1,175 @@
-﻿var coloursGlobal = {};
-
-window.onload = function () {
-    setUpRunDivs();
-    test();
+﻿window.onload = function () {
+    Colours();
 }
 
-function setUpRunDivs() {
-    //$("div.runDiv").each((i, e) => coloursGlobal[e.id] = {});
-    //$("div.runDiv").each((i, e) => coloursGlobal[e.id]["run"] = false);
-    $("div.runDiv")
-        .each((i, e) => coloursGlobal[e.id] = {})
-        .each((i, e) => coloursGlobal[e.id]["run"] = false)
-        .mouseenter(function (eventData) { coloursGlobal[eventData.toElement.id].run = true; })
-        .mouseleave(function (eventData) { coloursGlobal[eventData.fromElement.id].run = false; })
-  //.mouseenter(function () {
-  //    n += 1;
-  //    $(this).find("span").text("mouse enter x " + n);
-  //})
-  //.mouseleave(function () {
-  //    $(this).find("span").text("mouse leave");
-  //});
-}
-
-function test() {
-    graphDiv = document.getElementById("graphDiv0");
-
-    let init = [];
-    for (var i = 0; i < 100; i++) { init[i] = 126;}
-    var trace = {
-        x: init,
-        y: init,
-        z: init,
-        mode: 'markers',
-        marker: {
-            size: 6,
-            //line: {
-            //    color: 'rgba(217, 217, 217, 0)',
-            //    width: 0.5
-            //},
-            opacity: 0.8
+// Global Colours() function. Run this once to kick things off.
+function Colours() {
+    let coloursData = {
+        // runDivsArray is an array of objects which tracks the states of the runDivsArray on this page.
+        // [{ 
+        //     id: "id of run div",
+        //     active: "true for the single active element",
+        //     initialised: "true if element has initialised",
+        //     run: "function to run"
+        //     initialise: "function to initialise"
+        // }, {...}, ...]
+        runDivsArray: [],
+        runDivsObject: {},
+        setUp: function (id, functions) {
+            // Add the details to the array.
+            let index = this.runDivsArray.push({
+                id: id,
+                initialised: false,
+                active: false,
+                initialise: functions.initialise,
+                update: functions.update
+            }) - 1;
+            // And keep an index keyed to the ID
+            this.runDivsObject[id] = index;
         },
-        type: 'scatter3d'
+        setActive: function (id) { this.runDivsArray[this.runDivsObject[id]].active = true; },
+        setInActive: function (id) { this.runDivsArray[this.runDivsObject[id]].active = false; },
+        setInitialised: function (id) { this.runDivsArray[this.runDivsObject[id]].initialised = true; },
+        // Global "Run" Function.
+        run: function () {
+            if (!this.runDivsArray.some(r => r.active)) {
+                // No elements are active, so don't do anything
+                return new Promise((resolve) => resolve());
+            }
+            else {
+                // Run the code for the active element
+                let o = this.runDivsArray.find(r => r.active);
+                // Run initialise if it has not been run.
+                if (!o.initialised) {
+                    o.initialised = true;
+                    return o.initialise();
+                }
+                else {
+                    return o.update();
+                }
+            }
+        }
     };
 
-    var data = [trace];
 
-    let axisInfo = {
-        //showaxeslabels: false,
-        showticklabels: false,
-        //title: "",
-        zeroline: true,
-        showline: false,
-        showgrid: false,
-        type: "linear",
-        range: [0,255]
+    ////////////
+    // Set Up //
+    ////////////
 
-    }
-    // see https://plot.ly/javascript/reference/#layout-scene
-    let scene = {
-        xaxis: axisInfo,
-        yaxis: axisInfo,
-        zaxis: axisInfo,
-        camera: { eye: {x: 0.1, y: 2.5, z: 0.1}}
+    // Set up the runDivs which power other elements when mouse-hovered.
+    function setUpRunDivs() {
+        let runDivs = $("div.runDiv");
 
+        let functions = {
+            runDiv0: {initialise: initForRunDiv0, update: updateForRunDiv0}
+        }
+
+        runDivs
+            .each((i, e) => coloursData.setUp(e.id, functions[e.id]))
+            .mouseenter(function (eventData) { coloursData.setActive(eventData.toElement.id); })
+            .mouseleave(function (eventData) { coloursData.setInActive(eventData.fromElement.id); });
     }
 
-    var layout = {
-        scene: scene,
-        showlegend: false,
-        autosize: true,
-        margin: { t: 0, l: 0, r: 0, b:0 }
-    };
-    Plotly.plot(graphDiv, data, layout, { displayModeBar: false }).then(function () { start(graphDiv, data, layout); });
-}
+    function initForRunDiv0(){
+        graphDiv = document.getElementById("graphDiv0");
 
-function start(graphDiv, data, layout) {
-    //setInterval(function () { update(graphDiv, data, layout); }, 16);
-    updateRecursive(graphDiv, data, layout);
-}
+        let init = [];
+        for (var i = 0; i < 100; i++) { init[i] = 126; }
+        var trace = {
+            x: init,
+            y: init,
+            z: init,
+            mode: 'markers',
+            marker: {
+                size: 6,
+                opacity: 0.8
+            },
+            type: 'scatter3d'
+        };
 
-function updateRecursive(graphDiv, data, layout) {
-    if (coloursGlobal["runDiv0"].run) {
-        update(graphDiv, data, layout);
+        let data = [trace];
+        let layout = plotlyFactory.get3DColourGraphLayout();
+
+        return Plotly.plot(graphDiv, data, layout, { displayModeBar: false });
     }
-    setTimeout(function () {
-        updateRecursive(graphDiv, data, layout);
-    }, 16);
-}
 
-function update(graphDiv, data, layout) {
-    let trace = data[0];
+    function updateForRunDiv0() {
+        let graphDiv = document.getElementById("graphDiv0");
+        let data = graphDiv.data;
+        let trace = data[0];
 
-    let move = A => A.map(a => a + (Math.random() * 20) - 10);
-    let limit = A => A.map(function(a) {
-        if (a > 255) a = 255;
-        if (a < 0) a = 0;
-        return a;
-    });
+        let move = A => A.map(a => a + (Math.random() * 20) - 10);
+        let limit = A => A.map(function (a) {
+            if (a > 255) a = 255;
+            if (a < 0) a = 0;
+            return a;
+        });
 
-    trace.x = limit(move(trace.x));
-    trace.y = limit(move(trace.y));
-    trace.z = limit(move(trace.z));
+        trace.x = limit(move(trace.x));
+        trace.y = limit(move(trace.y));
+        trace.z = limit(move(trace.z));
 
-    trace.marker.color = trace.x.map(function (e, i) { return "rgba(" + trace.x[i] + ", " + trace.y[i] + ", " + trace.z[i] + ", 1)"; });
+        trace.marker.color = trace.x.map(function (e, i) { return "rgba(" + trace.x[i] + ", " + trace.y[i] + ", " + trace.z[i] + ", 1)"; });
 
-    data[0] = trace;
-    
-    Plotly.update(graphDiv, data, graphDiv.layout);
+        return Plotly.update(graphDiv, data, graphDiv.layout);
+    }
+
+    ////////////////////
+    // Plotly Factory //
+    ////////////////////
+
+    // Get a factory for generating plotly graphs.
+    let plotlyFactory = function() {
+        function getMinimalAxis(title) {
+            // "Axis" object (e.g. xaxis, yaxis, zaxis)
+            return {
+                showticklabels: false,
+                title: title,
+                zeroline: true,
+                showline: true,
+                showgrid: false,
+                type: "linear",
+                range: [0, 255]
+            }
+        }
+
+        function get3DColourGraphLayout() {
+            // For 3D plotly graphs, the axes formatting is determined by the scene.
+            // see https://plot.ly/javascript/reference/#layout-scene
+            let scene = {
+                xaxis: getMinimalAxis("r"),
+                yaxis: getMinimalAxis("g"),
+                zaxis: getMinimalAxis("b"),
+                camera: { eye: { x: 0.1, y: 2.5, z: 0.1 } }
+            }
+
+            // "Layout" object
+            return {
+                scene: scene,
+                showlegend: false,
+                autosize: true,
+                margin: { t: 0, l: 0, r: 0, b: 0 }
+            };
+        }
+
+        return {
+            get3DColourGraphLayout: get3DColourGraphLayout
+        }
+    }();
+
+    ////////////
+    // Update //
+    ////////////
+
+    function updateRecursive() {
+        // Run the update function for the active element. it should return a promise.
+        setTimeout(function () {
+            coloursData
+                .run()
+                .then(updateRecursive);
+        }, 16);
+    }
+
+    setUpRunDivs();
+    updateRecursive();
 }
