@@ -4,20 +4,32 @@
 
 // Global Colours() function. Run this once to kick things off.
 function Colours() {
+
+    ////////////////
+    // Data Model //
+    ////////////////
+
     let coloursData = {
-        // runDivsArray is an array of objects which tracks the states of the runDivsArray on this page.
+        // runDivs is an array of objects containing the states of the runDivs on this page.
         // [{ 
         //     id: "id of run div",
-        //     active: "true for the single active element",
+        //     active: "true if the element is active",
         //     initialised: "true if element has initialised",
-        //     run: "function to run"
-        //     initialise: "function to initialise"
-        // }, {...}, ...]
-        runDivsArray: [],
-        runDivsObject: {},
+        //     update: "function to run to make updates associated with this runDiv"
+        //     initialise: "function to initialise elements associated with this runDiv"
+        // }]
+        runDivs: [],
+        // tracker is a shortcut object, allowing us to look up states in the array by id
+        // via the get(id) method.
+        tracker: {},
+        get: function (id) { return this.runDivs[this.tracker[id]]; },
+    };
+
+    let coloursController = {
+        // Register functions to be called when an element is active.
         setUp: function (id, functions) {
             // Add the details to the array.
-            let index = this.runDivsArray.push({
+            let index = coloursData.runDivs.push({
                 id: id,
                 initialised: false,
                 active: false,
@@ -25,20 +37,23 @@ function Colours() {
                 update: functions.update
             }) - 1;
             // And keep an index keyed to the ID
-            this.runDivsObject[id] = index;
+            coloursData.tracker[id] = index;
         },
-        setActive: function (id) { this.runDivsArray[this.runDivsObject[id]].active = true; },
-        setInActive: function (id) { this.runDivsArray[this.runDivsObject[id]].active = false; },
-        setInitialised: function (id) { this.runDivsArray[this.runDivsObject[id]].initialised = true; },
-        // Global "Run" Function.
+        // Set the element with ID [id] to be active. Its update() method will be called.
+        setActive: function (id) { coloursData.get(id).active = true; },
+        // Set the element with ID [id] to be inactive.
+        setInActive: function (id) { coloursData.get(id).active = false; },
+        // The element with Id [id] has been initialised.
+        setInitialised: function (id) { coloursData.get(id).initialised = true; },
+        // "Run" Function. Performs one update for the active element (if any).
         run: function () {
-            if (!this.runDivsArray.some(r => r.active)) {
+            if (!coloursData.runDivs.some(r => r.active)) {
                 // No elements are active, so don't do anything
                 return new Promise((resolve) => resolve());
             }
             else {
                 // Run the code for the active element
-                let o = this.runDivsArray.find(r => r.active);
+                let o = coloursData.runDivs.find(r => r.active);
                 // Run initialise if it has not been run.
                 if (!o.initialised) {
                     o.initialised = true;
@@ -49,8 +64,7 @@ function Colours() {
                 }
             }
         }
-    };
-
+    }
 
     ////////////
     // Set Up //
@@ -65,10 +79,14 @@ function Colours() {
         }
 
         runDivs
-            .each((i, e) => coloursData.setUp(e.id, functions[e.id]))
-            .mouseenter(function (eventData) { coloursData.setActive(eventData.toElement.id); })
-            .mouseleave(function (eventData) { coloursData.setInActive(eventData.fromElement.id); });
+            .each((i, e) => coloursController.setUp(e.id, functions[e.id]))
+            .mouseenter(function (eventData) { coloursController.setActive(eventData.toElement.id); })
+            .mouseleave(function (eventData) { coloursController.setInActive(eventData.fromElement.id); });
     }
+
+    //////////////////////////
+    // Initialise Functions //
+    //////////////////////////
 
     function initForRunDiv0(){
         graphDiv = document.getElementById("graphDiv0");
@@ -92,6 +110,10 @@ function Colours() {
 
         return Plotly.plot(graphDiv, data, layout, { displayModeBar: false });
     }
+
+    //////////////////////
+    // Update Functions //
+    //////////////////////
 
     function updateForRunDiv0() {
         let graphDiv = document.getElementById("graphDiv0");
@@ -140,7 +162,7 @@ function Colours() {
                 xaxis: getMinimalAxis("r"),
                 yaxis: getMinimalAxis("g"),
                 zaxis: getMinimalAxis("b"),
-                camera: { eye: { x: 0.1, y: 2.5, z: 0.1 } }
+                camera: { eye: { x: 0, y: 2.5, z: 0} }
             }
 
             // "Layout" object
@@ -162,9 +184,9 @@ function Colours() {
     ////////////
 
     function updateRecursive() {
-        // Run the update function for the active element. it should return a promise.
+        // Run the update function for the active element. It should return a promise.
         setTimeout(function () {
-            coloursData
+            coloursController
                 .run()
                 .then(updateRecursive);
         }, 16);
