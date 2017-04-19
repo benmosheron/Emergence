@@ -60,7 +60,7 @@ function PlotlyFactory() {
             colour = c;
         }
         else {
-            colour = ColoursFromArrays(x, y, z);
+            colour = ColourStringsFromArrays(x, y, z);
         }
 
         return {
@@ -77,10 +77,37 @@ function PlotlyFactory() {
         };
     }
 
+    // Efficiently update the graph with supplied id to the given data.
+    // Only the first trace will be updated.
+    function updateGraph(id, trace) {
+        function f() {
+            Plotly.animate(id, {
+                data: [trace],
+                traces: [0],
+                // If you wanted to update the layout in here as well:
+                //layout: layout
+            }, {
+                transition: {
+                    duration: 0,
+                }, frame: {
+                    duration: 0,
+                    redraw: false
+                }
+            });
+        }
 
+        var promise = new Promise(function (resolve) {
+            requestAnimationFrame(f);
+            resolve();
+        });
 
+        return promise;
+    }
+
+    // PlotlyFactory methods:
     return {
         get3DColourGraphLayout: get3DColourGraphLayout,
         getTrace: getTrace,
+        updateGraph: updateGraph
     }
 }

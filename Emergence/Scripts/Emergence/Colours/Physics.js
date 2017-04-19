@@ -96,8 +96,21 @@ function Trajectory() {
         if (trajectory.length > maxTrajectoryLength) trajectory.pop();
     }
 
+    function getTrace() {
+        let x = trajectory.map(p => p.x);
+        let y = trajectory.map(p => p.y);
+        let z = trajectory.map(p => p.z);
+        return {
+            x: x,
+            y: y,
+            z: z,
+            marker: { color: ColourStringsFromArrays(x, y, z) }
+        }
+    }
+
     return {
         trajectory: trajectory,
-        update: update
+        update: update,
+        getTrace: getTrace
     }
 }
