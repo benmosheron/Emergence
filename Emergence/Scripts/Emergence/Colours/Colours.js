@@ -19,11 +19,23 @@ function Colours() {
         //     initialise: "function to initialise elements associated with this runDiv"
         // }]
         runDivs: [],
-        // tracker is a shortcut object, allowing us to look up states in the array by id
+        // tracker is a dictionary { id, index }, allowing us to look up states in the array by id
         // via the get(id) method.
         tracker: {},
         get: function (id) { return this.runDivs[this.tracker[id]]; },
     };
+
+    // DOM updates
+
+    function setDivActive(id) {
+            $("#" + id).addClass("active");
+    }
+
+    function setDivInactive(id) {
+        $("#" + id).removeClass("active");
+    }
+
+
 
     let coloursController = {
         // Register functions to be called when an element is active.
@@ -66,6 +78,13 @@ function Colours() {
         }
     }
 
+    ////////////////////
+    // Plotly Factory //
+    ////////////////////
+
+    // Get a factory for generating plotly graphs.
+    let plotlyFactory = PlotlyFactory();
+
     ////////////
     // Set Up //
     ////////////
@@ -77,13 +96,22 @@ function Colours() {
         // Assign update and init functions to each runDiv
         let functions = {
             runDiv0: { initialise: initForRunDiv0, update: updateForRunDiv0 },
-            runDiv1: { initialise: initForRunDiv1, update: function () { return new Promise(r => r()) } }
+            runDiv1: { initialise: initForRunDiv1, update: function () { return new Promise(r => r()) } },
+            runDiv2: { initialise: initForRunDiv2, update: updateForRunDiv2 }
         }
 
         runDivs
             .each((i, e) => coloursController.setUp(e.id, functions[e.id]))
-            .mouseenter(function (eventData) { coloursController.setActive(eventData.toElement.id); })
-            .mouseleave(function (eventData) { coloursController.setInActive(eventData.fromElement.id); });
+            .mouseenter(function (eventData) {
+                let id = eventData.toElement.id;
+                coloursController.setActive(id);
+                setDivActive(id)
+            })
+            .mouseleave(function (eventData) {
+                let id = eventData.fromElement.id;
+                coloursController.setInActive(id);
+                setDivInactive(id)
+            });
     }
 
     //////////////////////////
@@ -95,17 +123,7 @@ function Colours() {
 
         let init = [];
         for (var i = 0; i < 100; i++) { init[i] = 126; }
-        var trace = {
-            x: init,
-            y: init,
-            z: init,
-            mode: 'markers',
-            marker: {
-                size: 6,
-                opacity: 0.8
-            },
-            type: 'scatter3d'
-        };
+        let trace = plotlyFactory.getTrace("markers", "scatter3d", init, init, init);
 
         let data = [trace];
         let layout = plotlyFactory.get3DColourGraphLayout();
@@ -116,19 +134,27 @@ function Colours() {
     function initForRunDiv1() {
         graphDiv = document.getElementById("graphDiv1");
 
-        let init = [0, 255];
+        let init = [0, 63, 127, 191, 255];
         
-        var trace = {
-            x: init,
-            y: init,
-            z: init,
-            mode: 'markers',
-            marker: {
-                size: 6,
-                opacity: 0.8
-            },
-            type: 'scatter3d'
-        };
+        let trace = plotlyFactory.getTrace("markers", "scatter3d", init, init, init);
+
+        let data = [trace];
+        let layout = plotlyFactory.get3DColourGraphLayout();
+
+        return Plotly.plot(graphDiv, data, layout, { displayModeBar: false });
+    }
+
+    let trajectory2 = Trajectory();
+
+    function initForRunDiv2() {
+        graphDiv = document.getElementById("graphDiv2");
+
+        let trace = plotlyFactory.getTrace(
+            "markers",
+            "scatter3d",
+            trajectory2.trajectory.map(p => p.x),
+            trajectory2.trajectory.map(p => p.y),
+            trajectory2.trajectory.map(p => p.z));
 
         let data = [trace];
         let layout = plotlyFactory.get3DColourGraphLayout();
@@ -156,56 +182,25 @@ function Colours() {
         trace.y = limit(move(trace.y));
         trace.z = limit(move(trace.z));
 
-        trace.marker.color = trace.x.map(function (e, i) { return "rgba(" + trace.x[i] + ", " + trace.y[i] + ", " + trace.z[i] + ", 1)"; });
+        trace.marker.color = trace.x.map(function (e, i) { return "rgb(" + trace.x[i] + ", " + trace.y[i] + ", " + trace.z[i] + ")"; });
 
         return Plotly.update(graphDiv, data, graphDiv.layout);
     }
 
-    ////////////////////
-    // Plotly Factory //
-    ////////////////////
+    function updateForRunDiv2() {
+        trajectory2.update();
+        let graphDiv = document.getElementById("graphDiv2");
+        let data = graphDiv.data;
+        let trace = data[0];
 
-    // Get a factory for generating plotly graphs.
-    let plotlyFactory = function() {
-        function getMinimalAxis(title) {
-            // "Axis" object (e.g. xaxis, yaxis, zaxis)
-            return {
-                showticklabels: false,
-                title: title,
-                zeroline: false,
-                showline: false,
-                showgrid: true,
-                gridcolor: "rgb(204, 204, 204)",
-                type: "linear",
-                range: [0, 255],
-                tick0: 0,
-                dtick: 51
-            }
-        }
+        trace.x = trajectory2.trajectory.map(p => p.x),
+        trace.y = trajectory2.trajectory.map(p => p.y),
+        trace.z = trajectory2.trajectory.map(p => p.z),
 
-        function get3DColourGraphLayout() {
-            // For 3D plotly graphs, the axes formatting is determined by the scene.
-            // see https://plot.ly/javascript/reference/#layout-scene
-            let scene = {
-                xaxis: getMinimalAxis("r"),
-                yaxis: getMinimalAxis("g"),
-                zaxis: getMinimalAxis("b"),
-                camera: { eye: { x: 0, y: -2.5, z: 0} }
-            }
+        trace.marker.color = trace.x.map(function (e, i) { return "rgb(" + trace.x[i] + ", " + trace.y[i] + ", " + trace.z[i] + ")"; });
 
-            // "Layout" object
-            return {
-                scene: scene,
-                showlegend: false,
-                autosize: true,
-                margin: { t: 0, l: 0, r: 0, b: 0 }
-            };
-        }
-
-        return {
-            get3DColourGraphLayout: get3DColourGraphLayout
-        }
-    }();
+        return Plotly.update(graphDiv, data, graphDiv.layout);
+    }
 
     ////////////
     // Update //

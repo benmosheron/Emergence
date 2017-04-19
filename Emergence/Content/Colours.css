@@ -2,8 +2,6 @@
    They have intrinsic and extrinsic dimensions, css messes with the extrinsic.
 */
 .graphDiv{
-    border:solid;
-    border-width:medium;
     width: 200px;
     height: 200px;
 }
@@ -13,6 +11,15 @@
     border-width:medium;
     width: 200px;
     height: 200px;
+    background-color:lightgray
+}
+
+.runDiv.active{
+    background-color:darkseagreen
+}
+
+.runDiv.loading{
+    background-color:darkcyan
 }
 
 .lineDiv{

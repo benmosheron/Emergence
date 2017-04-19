@@ -220,7 +220,10 @@
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\Common\CanvasController.js" />
     <Content Include="Scripts\Common\Colour.js" />
-    <Content Include="Scripts\Emergence\Colours.js" />
+    <Content Include="Scripts\Emergence\Colours\Colours.js" />
+    <Content Include="Scripts\Emergence\Colours\Physics.js" />
+    <Content Include="Scripts\Emergence\Colours\plotly-latest.js" />
+    <Content Include="Scripts\Emergence\Colours\PlotlyFactory.js" />
     <Content Include="Scripts\Emergence\Emergence.js" />
     <Content Include="Scripts\Common\Vector.js" />
     <Content Include="Scripts\Emergence\Index.js" />
@@ -232,7 +235,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
-    <Content Include="Scripts\plotly-latest.min.js" />
+    <Content Include="Scripts\Emergence\Colours\plotly-latest.min.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\_references.js" />

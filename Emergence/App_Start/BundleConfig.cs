@@ -9,7 +9,10 @@ namespace Emergence
         public static void RegisterBundles(BundleCollection bundles)
         {
             // Bundle of all common js files
-            bundles.Add(new ScriptBundle("~/bundles/common").IncludeDirectory("~/Scripts/Common", "*js"));
+            bundles.Add(new ScriptBundle("~/bundles/common").IncludeDirectory(  "~/Scripts/Common", "*js"));
+
+            // Colours bundle
+            bundles.Add(new ScriptBundle("~/bundles/colours").IncludeDirectory("~/Scripts/Emergence/Colours", "*js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js"));

@@ -9,12 +9,20 @@ function Vector() {
         if (!Array.isArray(V)) throw `V must be an array. [${V}] is not an array.`;
 
         var vector = {
+            // This vector's number array.
             array: V,
-            map: function(f){ return create(this.array.map(f)) },
+            // Shortcut to array.prototype.map
+            map: function (f) { return create(this.array.map(f)) },
+            // Length of this vector's array.
             length: V.length,
+            // Calculate the magnitude of this vector.
             magnitude: function () { return magnitude(this.array); },
+            // Calculate a new magnitude s vector with the same direction as this one.
+            normalise: function (s) { return normalise(this, s); },
             add: function (v2) { return add(this, v2); },
             sub: function (v2) { return sub(this, v2); },
+            multiplyScalar: function (s) { return multiplyScalar(this, s); },
+            divideScalar: function (s) { return divideScalar(this, s); },
         };
 
         // xyz shortcuts
@@ -48,11 +56,17 @@ function Vector() {
         return create(array);
     }
 
+    // Calculate the magnitude of an array of numbers.
     function magnitude(array) {
         if (array.length === 0) {
             return 0;
         }
         return Math.sqrt(array.reduce(function (t, n) { return t + (n * n); }, 0));
+    }
+
+    // Calculate a new magnitude s vector with the same direction as v.
+    function normalise(v, s) {
+        return v.multiplyScalar(s / v.magnitude());
     }
 
     function add(v1, v2) {
@@ -67,14 +81,24 @@ function Vector() {
         return create(v1.array.map(function (e, i) { return e - v2.array[i]; }));
     }
 
+    function multiplyScalar(v, s) {
+        return create(v.array.map(e => e * s));
+    }
+
+    function divideScalar(v, s) {
+        return create(v.array.map(e => e / s));
+    }
+
     let vectorObject = {
         create: create,
         create2: create2,
         createRandom: createRandom,
         magnitude: magnitude,
+        normalise: normalise,
         add: add,
-        sub: sub
-
+        sub: sub,
+        multiplyScalar: multiplyScalar,
+        divideScalar: divideScalar
     }
 
     return vectorObject;
