@@ -4,8 +4,9 @@
         // Returns new position.
         teleport: function (P, minP, maxP) {
             return P.map(p => {
+                // Only teleport once we are strictly out of bounds
                 if (p < minP) return maxP;
-                if (p >= maxP) return minP;
+                if (p > maxP) return minP;
                 return p;
             });
         },
@@ -13,8 +14,9 @@
         // Returns new position, velocity and acceleration.
         reflect: function (P, minP, maxP, V, A) {
             let newP = P.map(p => {
+                // We are truncating to boundary so don't need to worry about < vs <=
                 if (p < minP) return minP;
-                if (p >= maxP) return maxP;
+                if (p > maxP) return maxP;
                 return p;
             });
             return {
@@ -110,6 +112,93 @@ function Trajectory() {
 
     return {
         trajectory: trajectory,
+        update: update,
+        getTrace: getTrace
+    }
+}
+
+function ConstantVelocitySystem(mode, initialPositions, initialVelocities) {
+    let minP = 0;
+    let maxP = 255;
+    // shortcut function
+    let v3 = (x, y, z) => v$.create([x, y, z]);
+
+    let positions = [];
+    let velocities = [];
+
+    let boundaryEffects = BoundaryEffects();
+
+    // More shortcuts:
+    // Max position
+    let M = 255;
+    // Velocity
+    let V = 1;
+    // Negative Velocity
+    let N = -V;
+
+    switch (mode) {
+        case "edges":
+            initialPositions = [
+                v3(0, 0, 0),
+                v3(0, M, 0),
+                v3(M, 0, 0),
+                v3(M, M, 0),
+
+                v3(0, 0, M),
+                v3(0, M, M),
+                v3(M, 0, M),
+                v3(M, M, M),
+
+                v3(0, 0, 0),
+                v3(0, M, M),
+                v3(M, 0, 0),
+                v3(M, M, M),
+            ];
+
+            initialVelocities = [
+                v3(0, N, 0),
+                v3(N, 0, 0),
+                v3(V, 0, 0),
+                v3(0, V, 0),
+
+                v3(0, V, 0),
+                v3(V, 0, 0),
+                v3(N, 0, 0),
+                v3(0, N, 0),
+
+                v3(0, 0, V),
+                v3(0, 0, N),
+                v3(0, 0, N),
+                v3(0, 0, V),
+            ];
+        case "custom":
+        default:
+    }
+
+    positions = initialPositions;
+    velocities = initialVelocities;
+
+    function update() {
+        // Move
+        positions = positions.map((e, i) => e.add(velocities[i]));
+
+        // Teleport
+        positions = positions.map(e => boundaryEffects.teleport(e, minP, maxP));
+    }
+
+    function getTrace() {
+        let x = positions.map(p => p.x);
+        let y = positions.map(p => p.y);
+        let z = positions.map(p => p.z);
+        return {
+            x: x,
+            y: y,
+            z: z,
+            marker: { color: ColourStringsFromArrays(x, y, z) }
+        }
+    }
+
+    return {
         update: update,
         getTrace: getTrace
     }

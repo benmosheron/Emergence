@@ -104,7 +104,7 @@ function Colours() {
         // Assign update and init functions to each runDiv
         let functions = {
             runDiv0: { initialise: initForRunDiv0, update: updateForRunDiv0 },
-            runDiv1: { initialise: initForRunDiv1, update: function () { return new Promise(r => r()) } },
+            runDiv1: { initialise: initForRunDiv1, update: updateForRunDiv1 },
             runDiv2: { initialise: initForRunDiv2, update: updateForRunDiv2 }
         }
 
@@ -139,12 +139,18 @@ function Colours() {
         return Plotly.plot(graphDiv, data, layout, { displayModeBar: false });
     }
 
+
+    let edgesSystem1 = ConstantVelocitySystem("edges");
     function initForRunDiv1() {
         graphDiv = document.getElementById("graphDiv1");
-
-        let init = [0, 63, 127, 191, 255];
-        
-        let trace = plotlyFactory.getTrace("markers", "scatter3d", init, init, init);
+        let systemTrace = edgesSystem1.getTrace();
+        let trace = plotlyFactory.getTrace(
+            "markers",
+            "scatter3d",
+            systemTrace.x,
+            systemTrace.y,
+            systemTrace.z,
+            systemTrace.marker.color);
 
         let data = [trace];
         let layout = plotlyFactory.get3DColourGraphLayout();
@@ -198,6 +204,16 @@ function Colours() {
         
         // Animate
         return plotlyFactory.updateGraph(id, trace);
+    }
+
+    function updateForRunDiv1() {
+        let id = "graphDiv1";
+
+        // Update positions.
+        edgesSystem1.update();
+
+        // Animate
+        return plotlyFactory.updateGraph(id, edgesSystem1.getTrace());
     }
 
     function updateForRunDiv2() {
