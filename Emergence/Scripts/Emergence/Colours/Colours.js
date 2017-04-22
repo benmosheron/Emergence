@@ -17,6 +17,8 @@ function Colours() {
         $("#" + id).removeClass("active");
     }
 
+    $("#titleCanvasRandomiserButton").click(updateTitleColourBarToRandom);
+
     ////////////////
     // Data Model //
     ////////////////
@@ -223,6 +225,11 @@ function Colours() {
 
         coloursData.titleBar.colours.forEach(
             (c, i) => controller.drawRect(xcgf(i), 0, coloursData.titleBar.segmentWidth, coloursData.titleBar.height, c));
+    }
+
+    // Update the title colour bar to a bunch of new random colours.
+    function updateTitleColourBarToRandom() {
+        updateTitleColourBar(coloursData.titleBar.colours.map(() => RandomColour()));
     }
 
     function updateForRunDiv0() {
