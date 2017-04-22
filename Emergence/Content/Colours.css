@@ -1,6 +1,15 @@
 ﻿/* Don't set the width/height of canvases via css.
    They have intrinsic and extrinsic dimensions, css messes with the extrinsic.
 */
+.colourBarDiv{
+    width:inherit;
+}
+
+.colourBar{
+    width:100%;
+    height:40px;
+}
+
 .graphDiv{
     width: 200px;
     height: 200px;

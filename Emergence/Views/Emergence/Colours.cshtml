@@ -6,9 +6,26 @@
 @Scripts.Render("~/bundles/colours")
 <link rel="stylesheet" type="text/css" href="~/Content/Colours.css" />
 
-<h2>RGB</h2>
+<h2>Colours</h2>
+
+<div class="colourBarDiv">
+    <!-- width will be overriden by javascript set up-->
+    <canvas id="titleCanvas" class="controlledCanvas colourBar" height="40" width="100"></canvas>
+</div>
 <p>
-    Colours are pretty interesting. The most common way to think about them (at least, if you're a computer) 
+    Colours are pretty interesting. 
+    The colours in the line above were chosen at random - there are lots of different ways of picking random colours,
+    and the method you choose will have a large affect on the set of colours you end up with.
+</p>
+<p>
+    Here's a button you can click to pick a brand new set.
+</p>
+<button></button>
+<table id="coloursRandomWalkTable" class="table">
+
+</table>
+<p>
+    Computers make it so easy to play around with random colours. The most common way to think about them (if you're a computer, anyway)
     is to break them down into their red, blue and green components.
 </p>
 <p>
@@ -16,6 +33,9 @@
 </p>
 <p>
     I'm even more interested in how we can pick colours at random.
+</p>
+<p>
+    We can have a bunch of colour particles do random walks (i.e. bounce around randomly).
 </p>
 <table id="coloursTable" class="table">
     <tr>
@@ -32,7 +52,7 @@
             <div class="gridDiv" id="gridDiv0"></div>
         </td>
     </tr>
-
+    
     <tr>
         <td>
             <div class="runDiv" id="runDiv1"></div>

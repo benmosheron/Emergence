@@ -23,6 +23,10 @@ function Colours() {
 
     // Tracks the states of the various "runDivs" which allow user interaction.
     let coloursData = {
+        // Array of colours shown in the title bar.
+        titleBar: { colours: [], segmentWidth: 5, width: $("#titleCanvas").attr("width"), height: $("#titleCanvas").attr("height") },
+        // Maps canvas IDs to their CanvasControllers
+        canvasControllers: {},
         // runDivs is an array of objects containing the states of the runDivs on this page.
         // [{ 
         //     id: "id of run div",
@@ -97,6 +101,34 @@ function Colours() {
     // Set Up //
     ////////////
 
+    function setUpCanvases() {
+        // Register a canvas controller for each controlledCanvas
+        $(".controlledCanvas").each((i, e) => coloursData.canvasControllers[e.id] = CanvasController(e.id));
+    }
+
+    // Set up the title colour bar
+    function setUpTitleColourBar() {
+        // Set the width by getting the width of the containing colourBarDiv
+        let canvasJq = $("#titleCanvas");
+        let colourBarDiv = canvasJq.parent();
+        coloursData.titleBar.width = colourBarDiv.width();
+
+        let canvas = canvasJq[0];
+        
+        // Set the actual width and height (number of pixels, not visual size)
+        canvas.width = coloursData.titleBar.width;
+        canvas.height = coloursData.titleBar.height;
+
+        let nSegments = coloursData.titleBar.width / coloursData.titleBar.segmentWidth;
+
+        for (var i = 0; i < nSegments; i++) {
+            coloursData.titleBar.colours[i] = RandomColour();
+        }
+
+        // Call without argument to use coloursData.titleBar.colours.
+        updateTitleColourBar();
+    }
+
     // Set up the runDivs which power other elements when mouse-hovered.
     function setUpRunDivs() {
         let runDivs = $("div.runDiv");
@@ -139,7 +171,6 @@ function Colours() {
         return Plotly.plot(graphDiv, data, layout, { displayModeBar: false });
     }
 
-
     let edgesSystem1 = ConstantVelocitySystem("edges");
     function initForRunDiv1() {
         graphDiv = document.getElementById("graphDiv1");
@@ -179,6 +210,20 @@ function Colours() {
     //////////////////////
     // Update Functions //
     //////////////////////
+
+    // Update the title colours bar to the supplied array of colours.
+    // If none is provided, coloursData.titleBar.colours will be used unchanged.
+    function updateTitleColourBar(arrayOfColours) {
+        if (typeof arrayOfColours !== "undefined") {
+            coloursData.titleBar.colours = arrayOfColours;
+        }
+        let controller = coloursData.canvasControllers["titleCanvas"];
+        // x coordinate generating function
+        let xcgf = i => i * coloursData.titleBar.segmentWidth;
+
+        coloursData.titleBar.colours.forEach(
+            (c, i) => controller.drawRect(xcgf(i), 0, coloursData.titleBar.segmentWidth, coloursData.titleBar.height, c));
+    }
 
     function updateForRunDiv0() {
         let id = "graphDiv0";
@@ -239,6 +284,8 @@ function Colours() {
         }, 16);
     }
 
+    setUpCanvases();
+    setUpTitleColourBar();
     setUpRunDivs();
     updateRecursive();
 }

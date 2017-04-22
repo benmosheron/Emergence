@@ -117,7 +117,14 @@ function Trajectory() {
     }
 }
 
-function ConstantVelocitySystem(mode, initialPositions, initialVelocities) {
+// Create a system of "particles of colour" by providing either:
+// a) A predefined mode other than "custom".
+//      - "edges"
+//      - "grid" (options = [{nx, ny, [, initialVelocity]}])
+// b) A mode of "custom" with arrays of initial positions and velocities.
+//      - options = {initialPositions, initialVelocities}
+function ConstantVelocitySystem(mode, options) {
+    if (typeof options === "undefined") options = {};
     let minP = 0;
     let maxP = 255;
     // shortcut function
@@ -138,7 +145,7 @@ function ConstantVelocitySystem(mode, initialPositions, initialVelocities) {
 
     switch (mode) {
         case "edges":
-            initialPositions = [
+            options.initialPositions = [
                 v3(0, 0, 0),
                 v3(0, M, 0),
                 v3(M, 0, 0),
@@ -155,7 +162,7 @@ function ConstantVelocitySystem(mode, initialPositions, initialVelocities) {
                 v3(M, M, M),
             ];
 
-            initialVelocities = [
+            options.initialVelocities = [
                 v3(0, N, 0),
                 v3(N, 0, 0),
                 v3(V, 0, 0),
@@ -171,12 +178,29 @@ function ConstantVelocitySystem(mode, initialPositions, initialVelocities) {
                 v3(0, 0, N),
                 v3(0, 0, V),
             ];
+            break;
+            ////////////
+            // Random //
+            ////////////
+        case "random":
+            options.initialPositions = [];
+            options.initialVelocities = [];
+            // Use 5x5 if ns were not provided.
+            if (typeof options.n === "undefined") options.n = 50;
+            // If a velocity was not provided, use (1,1,1)
+            if (typeof options.initialVelocity === "undefined") options.initialVelocity = v3(1, 1, 1);
+            let n = options.n;
+            for (var i = 0; i < n; i++) {
+                options.initialPositions[i] = v$.createRandom(3, minP, maxP);
+                options.initialVelocities[i] = options.initialVelocity;
+            }
+            break;
         case "custom":
         default:
     }
 
-    positions = initialPositions;
-    velocities = initialVelocities;
+    positions = options.initialPositions;
+    velocities = options.initialVelocities;
 
     function update() {
         // Move

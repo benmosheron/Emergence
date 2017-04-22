@@ -33,9 +33,16 @@ function CanvasController(id) {
             ctx.fillRect(left, top, sideLength, sideLength);
         }
 
+        // Draw a rectangle on the canvas
+        function drawRect(left, top, width, height, colour) {
+            ctx.fillStyle = colour.string;
+            ctx.fillRect(left, top, width, height);
+        }
+
         var controller = {
             context: ctx,
-            drawSquare: drawSquare
+            drawSquare: drawSquare,
+            drawRect: drawRect
         }
 
         return controller;
