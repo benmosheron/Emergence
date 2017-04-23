@@ -17,7 +17,7 @@ function Colours() {
         $("#" + id).removeClass("active");
     }
 
-    $("#titleCanvasRandomiserButton").click(updateTitleColourBarToRandom);
+    $("#titleCanvas").click(updateTitleColourBarToRandom);
 
     ////////////////
     // Data Model //

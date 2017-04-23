@@ -29,6 +29,7 @@ function PlotlyFactory() {
         // For 3D plotly graphs, the axes formatting is determined by the scene.
         // see https://plot.ly/javascript/reference/#layout-scene
         let scene = {
+            //hovermode: false,
             xaxis: getMinimalAxis("r"),
             yaxis: getMinimalAxis("g"),
             zaxis: getMinimalAxis("b"),
