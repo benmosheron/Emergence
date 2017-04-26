@@ -7,7 +7,7 @@ function PlotlyFactory() {
 
     // Private
 
-    function getMinimalAxis(title) {
+    function createMinimalAxis(title) {
         // "Axis" object (e.g. xaxis, yaxis, zaxis)
         return {
             showticklabels: false,
@@ -25,14 +25,14 @@ function PlotlyFactory() {
 
     // Public
 
-    function get3DColourGraphLayout() {
+    function create3DColourGraphLayout() {
         // For 3D plotly graphs, the axes formatting is determined by the scene.
         // see https://plot.ly/javascript/reference/#layout-scene
         let scene = {
             //hovermode: false,
-            xaxis: getMinimalAxis("r"),
-            yaxis: getMinimalAxis("g"),
-            zaxis: getMinimalAxis("b"),
+            xaxis: createMinimalAxis("r"),
+            yaxis: createMinimalAxis("g"),
+            zaxis: createMinimalAxis("b"),
             camera: { eye: { x: 0, y: -2.5, z: 0 } }
         }
 
@@ -54,7 +54,7 @@ function PlotlyFactory() {
     // y: [1,1,1]
     // z: [0,0,0]
     // c: ["rgb(1,2,3)", "rgb(1,1,1)", "rgb(0,0,0)"]
-    function getTrace(mode, type, x, y, z, c) {
+    function createTrace(mode, type, x, y, z, c) {
         let colour = [];
 
         if (c) {
@@ -107,8 +107,8 @@ function PlotlyFactory() {
 
     // PlotlyFactory methods:
     return {
-        get3DColourGraphLayout: get3DColourGraphLayout,
-        getTrace: getTrace,
+        create3DColourGraphLayout: create3DColourGraphLayout,
+        createTrace: createTrace,
         updateGraph: updateGraph
     }
 }

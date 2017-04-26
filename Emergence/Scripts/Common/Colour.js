@@ -1,11 +1,13 @@
 ﻿// Helper functions for working with colours.
-function Colour(v) {
+function Colour(vIn) {
+    let v = vIn;
+    let vFloor = vIn.floor();
     return {
         v: v,
         r: v.x,
         g: v.y,
         b: v.z,
-        string: `rgb(${v.x}, ${v.y}, ${v.z})`
+        string: `rgb(${vFloor.x}, ${vFloor.y}, ${vFloor.z})`
     }
 }
 

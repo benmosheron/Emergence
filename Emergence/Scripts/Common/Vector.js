@@ -1,20 +1,22 @@
 ﻿// Global vector instance
-var v$ = Vector();
+let v$ = Vector();
 
 function Vector() {
 
     // Create a vector from an array of values.
-    function create(V) {
+    function create(arr) {
 
-        if (!Array.isArray(V)) throw `V must be an array. [${V}] is not an array.`;
+        if (!Array.isArray(arr)) throw `Input must be an array. [${arr}] is not an array.`;
 
-        var vector = {
+        let vector = {
             // This vector's number array.
-            array: V,
-            // Shortcut to array.prototype.map
+            array: arr,
+            // Shortcuts
+            // Creates a new vector from wrapping the result of array.map()
             map: function (f) { return create(this.array.map(f)) },
+            reduce: function (f, init) { return this.array.reduce(f, init) },
             // Length of this vector's array.
-            length: V.length,
+            length: arr.length,
             // Calculate the magnitude of this vector.
             magnitude: function () { return magnitude(this.array); },
             // Calculate a new magnitude s vector with the same direction as this one.
@@ -23,19 +25,21 @@ function Vector() {
             sub: function (v2) { return sub(this, v2); },
             multiplyScalar: function (s) { return multiplyScalar(this, s); },
             divideScalar: function (s) { return divideScalar(this, s); },
+            equals: function (v2) { return equals(this, v2); },
+            floor: function () { return floor(this); }
         };
 
         // xyz shortcuts
         if (vector.length > 0) {
-            vector.x = V[0];
+            vector.x = arr[0];
         }
 
         if (vector.length > 1) {
-            vector.y = V[1];
+            vector.y = arr[1];
         }
 
         if (vector.length > 2) {
-            vector.z = V[2];
+            vector.z = arr[2];
         }
 
         return vector;
@@ -72,21 +76,30 @@ function Vector() {
     function add(v1, v2) {
         if (v1.length !== v2.length) throw `Vector addition requires equal lengths ([${v1.length}] != [${v2.length}])`;
 
-        return create(v1.array.map(function (e, i) { return e + v2.array[i]; }));
+        return v1.map(function (e, i) { return e + v2.array[i]; });
     }
 
     function sub(v1, v2) {
         if (v1.length !== v2.length) throw `Vector subtraction requires equal lengths ([${v1.length}] != [${v2.length}])`;
 
-        return create(v1.array.map(function (e, i) { return e - v2.array[i]; }));
+        return v1.map(function (e, i) { return e - v2.array[i]; });
     }
 
     function multiplyScalar(v, s) {
-        return create(v.array.map(e => e * s));
+        return v.map(e => e * s);
     }
 
     function divideScalar(v, s) {
-        return create(v.array.map(e => e / s));
+        return v.map(e => e / s);
+    }
+
+    function equals(v1, v2) {
+        if (v1.length !== v2.length) return false;
+        return v1.reduce((acc, val, i) => acc && (v1.array[i] === v2.array[i]), true);
+    }
+
+    function floor(v) {
+        return v.map(e => Math.floor(e));
     }
 
     let vectorObject = {
@@ -98,7 +111,9 @@ function Vector() {
         add: add,
         sub: sub,
         multiplyScalar: multiplyScalar,
-        divideScalar: divideScalar
+        divideScalar: divideScalar,
+        equals: equals,
+        floor: floor
     }
 
     return vectorObject;

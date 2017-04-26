@@ -18,15 +18,78 @@ function Colours() {
     }
 
     $("#titleCanvas").click(updateTitleColourBarToRandom);
+    $("#titleCanvas").mousemove(titleColourBarMouseMove);
+    $("#titleCanvas").mouseleave(titleColourBarMouseLeave);
+
+    function titleColourBarMouseMove(event) {
+        // Get the index of the array we have moved to
+        coloursData.titleBar.selected = Math.floor(event.offsetX / coloursData.titleBar.segmentWidth);
+        backgroundColourController.change(coloursData.titleBar.colours[coloursData.titleBar.selected]);
+    }
+
+    function titleColourBarMouseLeave(event) {
+        backgroundColourController.reset();
+    }
 
     ////////////////
     // Data Model //
     ////////////////
 
+    // For controlling the transition of background colours.
+    let backgroundColourController = {
+        // The starting colour
+        original: ColourFromArray([249, 249, 249]),
+        // The target colour, update will move current towards this
+        target: ColourFromArray([249, 249, 249]),
+        // The current colour
+        current: ColourFromArray([249, 249, 249]),
+        // Amount to change current by each time update is called
+        delta: v$.create([0, 0, 0]),
+        // Number of frames the transition will take
+        frames: 30,
+        // number of frames remaining in this transition
+        framesToUpdate: this.frames,
+        change: function (colour) {
+            // Set new target colour
+            this.target = colour;
+            // Update delta
+            this.delta = v$.sub(this.target.v, this.current.v).divideScalar(this.frames);
+            // Reset counted frames
+            this.framesToUpdate = this.frames;
+        },
+        reset: function () { this.change(this.original); },
+        update: function () {
+            // Return if we don't need to change anything
+            if (v$.equals(this.target.v, this.current.v)) return;
+
+            // Move current towards target.
+            this.current = Colour(this.current.v.add(this.delta));
+
+            // Decrease frame count
+            if (this.framesToUpdate > 0)
+                this.framesToUpdate = this.framesToUpdate - 1;
+
+            // If we are at the end, set the colour to the target.
+            if (this.framesToUpdate === 0) {
+                this.current = this.target;
+            }
+
+            // update DOM
+            $("div.body-content").css("background-color", this.current.string);
+        }
+    };
+
     // Tracks the states of the various "runDivs" which allow user interaction.
     let coloursData = {
         // Array of colours shown in the title bar.
-        titleBar: { colours: [], segmentWidth: 5, width: $("#titleCanvas").attr("width"), height: $("#titleCanvas").attr("height") },
+        titleBar: {
+            colours: [],
+            segmentWidth: 5,
+            width: $("#titleCanvas").attr("width"),
+            height: $("#titleCanvas").attr("height"),
+            selected: 0,
+        },
+        backgroundColour: "xD",
         // Maps canvas IDs to their CanvasControllers
         canvasControllers: {},
         // runDivs is an array of objects containing the states of the runDivs on this page.
@@ -46,7 +109,6 @@ function Colours() {
 
     // Controls updates to elements on the page.
     let coloursController = {
-
         // Register functions to be called when an element is active.
         setUp: function (id, functions) {
             // Add the details to the array.
@@ -72,6 +134,9 @@ function Colours() {
 
         // "Run" Function. Performs one update for the active element (if any).
         run: function () {
+            // Run the background colour update
+            backgroundColourController.update();
+            // Run the runDiv updates
             if (!coloursData.runDivs.some(r => r.active)) {
                 // No elements are active, so don't do anything.
                 return new Promise((resolve) => resolve());
@@ -165,10 +230,10 @@ function Colours() {
         
         let init = [];
         for (var i = 0; i < 100; i++) { init[i] = 126; }
-        let trace = plotlyFactory.getTrace("markers", "scatter3d", init, init, init);
+        let trace = plotlyFactory.createTrace("markers", "scatter3d", init, init, init);
 
         let data = [trace];
-        let layout = plotlyFactory.get3DColourGraphLayout();
+        let layout = plotlyFactory.create3DColourGraphLayout();
 
         return Plotly.plot(graphDiv, data, layout, { displayModeBar: false });
     }
@@ -177,7 +242,7 @@ function Colours() {
     function initForRunDiv1() {
         graphDiv = document.getElementById("graphDiv1");
         let systemTrace = edgesSystem1.getTrace();
-        let trace = plotlyFactory.getTrace(
+        let trace = plotlyFactory.createTrace(
             "markers",
             "scatter3d",
             systemTrace.x,
@@ -186,7 +251,7 @@ function Colours() {
             systemTrace.marker.color);
 
         let data = [trace];
-        let layout = plotlyFactory.get3DColourGraphLayout();
+        let layout = plotlyFactory.create3DColourGraphLayout();
 
         return Plotly.plot(graphDiv, data, layout, { displayModeBar: false });
     }
@@ -196,7 +261,7 @@ function Colours() {
     function initForRunDiv2() {
         graphDiv = document.getElementById("graphDiv2");
 
-        let trace = plotlyFactory.getTrace(
+        let trace = plotlyFactory.createTrace(
             "markers",
             "scatter3d",
             trajectory2.trajectory.map(p => p.x),
@@ -204,7 +269,7 @@ function Colours() {
             trajectory2.trajectory.map(p => p.z));
 
         let data = [trace];
-        let layout = plotlyFactory.get3DColourGraphLayout();
+        let layout = plotlyFactory.create3DColourGraphLayout();
 
         return Plotly.plot(graphDiv, data, layout, { displayModeBar: false });
     }
