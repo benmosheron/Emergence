@@ -21,16 +21,6 @@ function Colours() {
     $("#titleCanvas").mousemove(titleColourBarMouseMove);
     $("#titleCanvas").mouseleave(titleColourBarMouseLeave);
 
-    function titleColourBarMouseMove(event) {
-        // Get the index of the array we have moved to
-        coloursData.titleBar.selected = Math.floor(event.offsetX / coloursData.titleBar.segmentWidth);
-        backgroundColourController.change(coloursData.titleBar.colours[coloursData.titleBar.selected]);
-    }
-
-    function titleColourBarMouseLeave(event) {
-        backgroundColourController.reset();
-    }
-
     ////////////////
     // Data Model //
     ////////////////
@@ -292,9 +282,23 @@ function Colours() {
             (c, i) => controller.drawRect(xcgf(i), 0, coloursData.titleBar.segmentWidth, coloursData.titleBar.height, c));
     }
 
+    // Update the background target colour to the colour the mouse moves to.
+    function titleColourBarMouseMove(event) {
+        // Get the index of the array we have moved to
+        coloursData.titleBar.selected = Math.floor(event.offsetX / coloursData.titleBar.segmentWidth);
+        backgroundColourController.change(coloursData.titleBar.colours[coloursData.titleBar.selected]);
+    }
+
+    // Reset the target background colour to it's original state.
+    function titleColourBarMouseLeave(event) {
+        backgroundColourController.reset();
+    }
+
     // Update the title colour bar to a bunch of new random colours.
-    function updateTitleColourBarToRandom() {
+    function updateTitleColourBarToRandom(event) {
         updateTitleColourBar(coloursData.titleBar.colours.map(() => RandomColour()));
+        // Also trigger a background colour update
+        titleColourBarMouseMove(event);
     }
 
     function updateForRunDiv0() {
