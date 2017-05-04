@@ -1,6 +1,10 @@
 ﻿// Global vector instance
 let v$ = Vector();
 
+module.exports = {
+    Vector: Vector
+}
+
 function Vector() {
 
     // Create a vector from an array of values.
@@ -47,6 +51,8 @@ function Vector() {
 
     // Create a vector of length two, providing x and y values.
     function create2(x, y) {
+        if (typeof x === "undefined") throw "At least one argument must be provided.";
+        if (typeof y === "undefined") y = x;
         return create([x, y]);
     }
 
@@ -70,6 +76,8 @@ function Vector() {
 
     // Calculate a new magnitude s vector with the same direction as v.
     function normalise(v, s) {
+        if (typeof s === "undefined") s = 1;
+        if (v.magnitude() === 0) return v.map(e => e);
         return v.multiplyScalar(s / v.magnitude());
     }
 
